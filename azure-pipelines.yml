@@ -1,0 +1,209 @@
+
+
+resources:
+  repositories: 
+  - repository: Weight-tracker-ansible-pipeline
+    type: github
+    name: sincros121/Weight-tracker-ansible-pipeline
+    ref: main
+    endpoint: sincros121
+
+  - repository: bootcamp-app      
+    type: github
+    name: sincros121/bootcamp-app
+    endpoint: sincros121
+    ref: master
+    trigger:
+      branches:
+        include:
+        - master
+
+
+pool: 'self-hosted-stas'
+
+stages:
+- stage: CI
+  displayName: Build
+  
+  jobs:
+  - job: Build
+    displayName: Build artifacts
+
+    steps:
+    - checkout: self
+      displayName: Clone latest web-application repo
+
+    - task: Npm@0
+      displayName: 'npm install'
+      inputs:
+        cwd: '$(System.DefaultWorkingDirectory)'
+        command: 'install'
+      
+    - task: DeleteFiles@1
+      displayName: Delete non artifact files
+      inputs:
+        SourceFolder: '$(System.DefaultWorkingDirectory)'
+        Contents: |
+          README.md
+          .git
+          docs
+          .gitignore
+          LICENSE
+          azure-pipelines.yml
+          
+    - task: ArchiveFiles@2
+      displayName: Archive files
+      inputs:
+        rootFolderOrFile: '$(System.DefaultWorkingDirectory)'
+        includeRootFolder: false
+        archiveType: 'zip'
+        archiveFile: '$(Build.ArtifactStagingDirectory)/bootcamp-app.zip'
+        replaceExistingArchive: true
+        
+    - task: UniversalPackages@0
+      displayName: Upload artifacts to azure artifacts
+      inputs:
+        command: 'publish'
+        publishDirectory: '$(Build.ArtifactStagingDirectory)'
+        feedsToUsePublish: 'internal'
+        vstsFeedPublish: '4d568cd9-3258-4c66-8828-30f40b885ad4/fa3b70db-aad3-42de-a3b2-a6d319553542'
+        vstsFeedPackagePublish: 'weight_tracker'
+        versionOption: 'patch'
+
+
+
+- stage: Stage_deployment
+  displayName: Stage
+  
+  variables: 
+  - group: vault secrets - stage
+
+  jobs:
+  - deployment: Deploy
+    environment: stage
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - checkout: Weight-tracker-ansible-pipeline
+            displayName: Clone latest ansible repo
+          
+          - task: UniversalPackages@0
+            displayName: Download latest artifacts
+            inputs:
+              command: 'download'
+              downloadDirectory: '$(System.DefaultWorkingDirectory)'
+              feedsToUse: 'internal'
+              vstsFeed: '4d568cd9-3258-4c66-8828-30f40b885ad4/fa3b70db-aad3-42de-a3b2-a6d319553542'
+              vstsFeedPackage: 'abb22cc3-69e3-448e-bcb0-4091eee52c00'
+              vstsPackageVersion: '*'
+
+          - script: |
+              echo "
+              PORT=8080
+              HOST=0.0.0.0
+
+              #postgres
+              PGHOST=weight-tracker-postgresql-db-$(Environment.Name).postgres.database.azure.com
+              PGUSERNAME=postgres
+              PGDATABASE=postgres
+              PGPASSWORD=$(weight-tracker-PSQL-db-password)
+              PGPORT=5432
+
+              HOST_URL=http://0.0.0.0:8080
+              COOKIE_ENCRYPT_PWD=$(cookie-encrypt-pwd)
+              NODE_ENV=development
+
+              # Okta configuration
+              OKTA_ORG_URL=https://dev-77800982.okta.com
+              OKTA_CLIENT_ID=$(OKTA-client-ID-stage)
+              OKTA_CLIENT_SECRET=$(okta-client-secret-stage)" | cat > .env
+            displayName: Crate .env file
+
+
+          - task: Ansible@0
+            displayName: Deploy using ansible
+            timeoutInMinutes: 6
+            inputs:
+              ansibleInterface: 'agentMachine'
+              playbookPathOnAgentMachine: '$(System.DefaultWorkingDirectory)/deploy.yaml'
+              inventoriesAgentMachine: 'noInventory'
+              args: '-e "env=$(Environment.Name) admin_password=$(VM-password)" --verbose'
+              failOnStdErr: false
+
+          - task: DeleteFiles@1
+            displayName: Delete .env file
+            inputs:
+              SourceFolder: '$(System.DefaultWorkingDirectory)'
+              Contents: '.env'
+  
+
+
+- stage: Prod_deployment
+  displayName: Prod
+  
+  variables: 
+  - group: vault secrets - prod
+
+  jobs:
+  - deployment: Deploy
+    environment: prod
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - checkout: Weight-tracker-ansible-pipeline
+            displayName: Clone latest ansible repo
+          
+          - task: UniversalPackages@0
+            displayName: Download latest artifacts
+            inputs:
+              command: 'download'
+              downloadDirectory: '$(System.DefaultWorkingDirectory)'
+              feedsToUse: 'internal'
+              vstsFeed: '4d568cd9-3258-4c66-8828-30f40b885ad4/fa3b70db-aad3-42de-a3b2-a6d319553542'
+              vstsFeedPackage: 'abb22cc3-69e3-448e-bcb0-4091eee52c00'
+              vstsPackageVersion: '*'
+
+          - script: |
+              echo "
+              PORT=8080
+              HOST=0.0.0.0
+
+              #postgres
+              PGHOST=weight-tracker-postgresql-db-$(Environment.Name).postgres.database.azure.com
+              PGUSERNAME=postgres
+              PGDATABASE=postgres
+              PGPASSWORD=$(weight-tracker-PSQL-db-password)
+              PGPORT=5432
+
+              HOST_URL=http://0.0.0.0:8080
+              COOKIE_ENCRYPT_PWD=$(cookie-encrypt-pwd)
+              NODE_ENV=development
+
+              # Okta configuration
+              OKTA_ORG_URL=https://dev-77800982.okta.com
+              OKTA_CLIENT_ID=$(OKTA-client-ID-prod)
+              OKTA_CLIENT_SECRET=$(okta-client-secret-prod)" | cat > .env
+            displayName: Crate .env file
+
+
+          - task: Ansible@0
+            displayName: Deploy using ansible
+            timeoutInMinutes: 6
+            inputs:
+              ansibleInterface: 'agentMachine'
+              playbookPathOnAgentMachine: '$(System.DefaultWorkingDirectory)/deploy.yaml'
+              inventoriesAgentMachine: 'noInventory'
+              args: '-e "env=$(Environment.Name) admin_password=$(VM-password)" --verbose'
+              failOnStdErr: false
+
+          - task: DeleteFiles@1
+            displayName: Delete .env file
+            inputs:
+              SourceFolder: '$(System.DefaultWorkingDirectory)'
+              Contents: '.env'
+              
+
+
+              
