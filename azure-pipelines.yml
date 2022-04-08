@@ -17,6 +17,9 @@ resources:
       branches:
         include:
         - master
+      paths:
+        exclude:
+          - azure-pipelines.yml
 
 
 pool: 'self-hosted-stas'
