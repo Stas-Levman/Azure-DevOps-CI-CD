@@ -20,7 +20,7 @@ resources:
       paths:
         exclude:
           - azure-pipelines.yml
-          - templates/*
+          - templates/* #
 
 
 pool: 'self-hosted-stas'
