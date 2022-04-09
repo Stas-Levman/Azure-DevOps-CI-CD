@@ -27,7 +27,7 @@ resources:
 
   pipelines:
     - pipeline: Terraform-pipeline  
-      source: Weight tracker terraform
+      source: 'Weight tracker terraform'
       trigger:
         stages:         
         - Stage_infrastructure 
