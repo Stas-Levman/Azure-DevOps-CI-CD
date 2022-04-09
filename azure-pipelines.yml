@@ -78,18 +78,11 @@ stages:
 
 
 
-
-
-
 - stage: Stage_deployment
   displayName: Stage
   
-
-
-
   variables: 
   - group: vault secrets - stage
-
 
   jobs:
   - deployment: Deploy
