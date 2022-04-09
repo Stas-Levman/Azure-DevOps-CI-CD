@@ -8,9 +8,9 @@ resources:
     ref: main
     endpoint: sincros121
 
-  - repository: bootcamp-app      
+  - repository: Azure-DevOps-CI-CD      
     type: github
-    name: sincros121/bootcamp-app
+    name: sincros121/Azure-DevOps-CI-CD
     endpoint: sincros121
     ref: master
     trigger:
@@ -20,7 +20,7 @@ resources:
       paths:
         exclude:
           - azure-pipelines.yml
-          - templates/* #
+          - templates/*
 
 
 pool: 'self-hosted-stas'
