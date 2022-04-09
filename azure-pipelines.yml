@@ -19,7 +19,7 @@ resources:
         - master
       paths:
         exclude:
-          - azure-pipelines.yml
+          # - azure-pipelines.yml
           - templates/*
 
 
