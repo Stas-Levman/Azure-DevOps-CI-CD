@@ -24,6 +24,7 @@ resources:
           - azure-pipelines.yml
           - templates/*
           - templates
+          - README.md
 
   pipelines:
     - pipeline: Terraform-pipeline
