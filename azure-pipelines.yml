@@ -1,5 +1,6 @@
 
 
+
 resources:
   repositories: 
   - repository: Weight-tracker-ansible-pipeline
@@ -77,11 +78,16 @@ stages:
 
 
 
+
 - stage: Stage_deployment
   displayName: Stage
   
+
+
+
   variables: 
   - group: vault secrets - stage
+
 
   jobs:
   - deployment: Deploy
@@ -103,7 +109,7 @@ stages:
           #     vstsFeedPackage: 'abb22cc3-69e3-448e-bcb0-4091eee52c00'
           #     vstsPackageVersion: '*'
 
-          - template: 'templates/env-creation-stage.yaml'
+          - template: "templates/env-creation-$(Environment.Name).yaml"
 
           # - script: |
           #     echo "
