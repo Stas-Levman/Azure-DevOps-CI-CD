@@ -76,20 +76,7 @@ stages:
         vstsFeedPackagePublish: 'weight_tracker'
         versionOption: 'patch'
 
-    - task: AzureCLI@2
-      displayName: Fetch public IP
-      inputs:
-        azureSubscription: 'Azure Pass - Sponsorship (7f731aec-a948-41c6-9f7c-7bc0908b579c)'
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: az network lb frontend-ip show -g weight-tracker-$(Environment.Name)-rg --lb-name front-load-balancer -n front-public-ip
-        
-    - task: AzureCLI@2
-      inputs:
-        azureSubscription: 'Azure Pass - Sponsorship (7f731aec-a948-41c6-9f7c-7bc0908b579c)'
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: az network lb frontend-ip show -g weight-tracker-$(Environment.Name)-rg --lb-name front-load-balancer -n front-public-ip
+
 
 
 
@@ -114,7 +101,20 @@ stages:
           - checkout: Weight-tracker-ansible-pipeline
             displayName: Clone latest ansible repo
 
-
+          - task: AzureCLI@2
+            displayName: Fetch public IP
+            inputs:
+              azureSubscription: 'Azure Pass - Sponsorship (7f731aec-a948-41c6-9f7c-7bc0908b579c)'
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: az network lb frontend-ip show -g weight-tracker-$(Environment.Name)-rg --lb-name front-load-balancer -n front-public-ip
+              
+          - task: AzureCLI@2
+            inputs:
+              azureSubscription: 'Azure Pass - Sponsorship (7f731aec-a948-41c6-9f7c-7bc0908b579c)'
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: az network lb frontend-ip show -g weight-tracker-$(Environment.Name)-rg --lb-name front-load-balancer -n front-public-ip
           
           - task: UniversalPackages@0
             displayName: Download latest artifacts
