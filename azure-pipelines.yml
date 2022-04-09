@@ -15,6 +15,7 @@ resources:
     endpoint: sincros121
     ref: master
     trigger:
+      batch: true
       branches:
         include:
         - master
@@ -23,6 +24,15 @@ resources:
           - azure-pipelines.yml
           - templates/*
           - templates
+
+  pipelines:
+    - pipeline: Terraform-pipeline  
+      source: Weight tracker terraform
+      trigger:
+        stages:         
+        - Stage_infrastructure 
+        - Prod_infrastructure
+      
 
 
 pool: 'self-hosted-stas'
