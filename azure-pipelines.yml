@@ -26,11 +26,11 @@ resources:
           - templates
 
   pipelines:
-    - pipeline: Terraform-pipeline  
+    - pipeline: Terraform-pipeline
       source: 'Weight tracker terraform'
       trigger:
-        stages:         
-        - Stage_infrastructure 
+        stages:
+        - Stage_infrastructure
         - Prod_infrastructure
       
 
