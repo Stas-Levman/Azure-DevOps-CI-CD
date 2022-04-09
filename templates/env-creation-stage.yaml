@@ -13,7 +13,7 @@ steps:
     PGPASSWORD=$(weight-tracker-PSQL-db-password)
     PGPORT=5432
 
-    HOST_URL=http://0.0.0.0:8080
+    HOST_URL=http://$(ip_address):8080
     COOKIE_ENCRYPT_PWD=$(cookie-encrypt-pwd)
     NODE_ENV=development
 
