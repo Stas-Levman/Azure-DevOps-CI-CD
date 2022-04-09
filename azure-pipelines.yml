@@ -107,7 +107,7 @@ stages:
               azureSubscription: 'Azure Pass - Sponsorship (7f731aec-a948-41c6-9f7c-7bc0908b579c)'
               scriptType: 'bash'
               scriptLocation: 'inlineScript'
-              inlineScript: az network lb frontend-ip show -g weight-tracker-$(Environment.Name)-rg --lb-name front-load-balancer -n frontend-IP-configuration
+              inlineScript: az network public-ip show -g weight-tracker-$(Environment.Name)-rg -n front-public-ip
               
           - task: AzureCLI@2
             inputs:
