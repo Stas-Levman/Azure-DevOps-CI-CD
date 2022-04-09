@@ -76,6 +76,21 @@ stages:
         vstsFeedPackagePublish: 'weight_tracker'
         versionOption: 'patch'
 
+    - task: AzureCLI@2
+      displayName: Fetch public IP
+      inputs:
+        azureSubscription: 'Azure Pass - Sponsorship (7f731aec-a948-41c6-9f7c-7bc0908b579c)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: az network lb frontend-ip show -g weight-tracker-$(Environment.Name)-rg --lb-name front-load-balancer -n front-public-ip
+        
+    - task: AzureCLI@2
+      inputs:
+        azureSubscription: 'Azure Pass - Sponsorship (7f731aec-a948-41c6-9f7c-7bc0908b579c)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: az network lb frontend-ip show -g weight-tracker-$(Environment.Name)-rg --lb-name front-load-balancer -n front-public-ip
+
 
 
 
@@ -98,18 +113,20 @@ stages:
           steps:
           - checkout: Weight-tracker-ansible-pipeline
             displayName: Clone latest ansible repo
-          
-          # - task: UniversalPackages@0
-          #   displayName: Download latest artifacts
-          #   inputs:
-          #     command: 'download'
-          #     downloadDirectory: '$(System.DefaultWorkingDirectory)'
-          #     feedsToUse: 'internal'
-          #     vstsFeed: '4d568cd9-3258-4c66-8828-30f40b885ad4/fa3b70db-aad3-42de-a3b2-a6d319553542'
-          #     vstsFeedPackage: 'abb22cc3-69e3-448e-bcb0-4091eee52c00'
-          #     vstsPackageVersion: '*'
 
-          - template: templates/env-creation-$[Environment.Name].yaml
+
+          
+          - task: UniversalPackages@0
+            displayName: Download latest artifacts
+            inputs:
+              command: 'download'
+              downloadDirectory: '$(System.DefaultWorkingDirectory)'
+              feedsToUse: 'internal'
+              vstsFeed: '4d568cd9-3258-4c66-8828-30f40b885ad4/fa3b70db-aad3-42de-a3b2-a6d319553542'
+              vstsFeedPackage: 'abb22cc3-69e3-448e-bcb0-4091eee52c00'
+              vstsPackageVersion: '*'
+
+          - template: templates/env-creation-stage.yaml
 
           # - script: |
           #     echo "
@@ -134,21 +151,21 @@ stages:
           #   displayName: Create .env file
 
 
-          # - task: Ansible@0
-          #   displayName: Deploy using ansible
-          #   timeoutInMinutes: 6
-          #   inputs:
-          #     ansibleInterface: 'agentMachine'
-          #     playbookPathOnAgentMachine: '$(System.DefaultWorkingDirectory)/deploy.yaml'
-          #     inventoriesAgentMachine: 'noInventory'
-          #     args: '-e "env=$(Environment.Name) admin_password=$(VM-password)" --verbose'
-          #     failOnStdErr: false
+          - task: Ansible@0
+            displayName: Deploy using ansible
+            timeoutInMinutes: 6
+            inputs:
+              ansibleInterface: 'agentMachine'
+              playbookPathOnAgentMachine: '$(System.DefaultWorkingDirectory)/deploy.yaml'
+              inventoriesAgentMachine: 'noInventory'
+              args: '-e "env=$(Environment.Name) admin_password=$(VM-password)" --verbose'
+              failOnStdErr: false
 
-          # - task: DeleteFiles@1
-          #   displayName: Delete .env file
-          #   inputs:
-          #     SourceFolder: '$(System.DefaultWorkingDirectory)'
-          #     Contents: '.env'
+          - task: DeleteFiles@1
+            displayName: Delete .env file
+            inputs:
+              SourceFolder: '$(System.DefaultWorkingDirectory)'
+              Contents: '.env'
   
 
 
@@ -168,17 +185,17 @@ stages:
           - checkout: Weight-tracker-ansible-pipeline
             displayName: Clone latest ansible repo
           
-          # - task: UniversalPackages@0
-          #   displayName: Download latest artifacts
-          #   inputs:
-          #     command: 'download'
-          #     downloadDirectory: '$(System.DefaultWorkingDirectory)'
-          #     feedsToUse: 'internal'
-          #     vstsFeed: '4d568cd9-3258-4c66-8828-30f40b885ad4/fa3b70db-aad3-42de-a3b2-a6d319553542'
-          #     vstsFeedPackage: 'abb22cc3-69e3-448e-bcb0-4091eee52c00'
-          #     vstsPackageVersion: '*'
+          - task: UniversalPackages@0
+            displayName: Download latest artifacts
+            inputs:
+              command: 'download'
+              downloadDirectory: '$(System.DefaultWorkingDirectory)'
+              feedsToUse: 'internal'
+              vstsFeed: '4d568cd9-3258-4c66-8828-30f40b885ad4/fa3b70db-aad3-42de-a3b2-a6d319553542'
+              vstsFeedPackage: 'abb22cc3-69e3-448e-bcb0-4091eee52c00'
+              vstsPackageVersion: '*'
 
-          - template: 'templates/env-creation-prod.yaml'
+          - template: templates/env-creation-prod.yaml
 
 
           # - script: |
@@ -204,21 +221,21 @@ stages:
           #   displayName: Crate .env file
 
 
-          # - task: Ansible@0
-          #   displayName: Deploy using ansible
-          #   timeoutInMinutes: 6
-          #   inputs:
-          #     ansibleInterface: 'agentMachine'
-          #     playbookPathOnAgentMachine: '$(System.DefaultWorkingDirectory)/deploy.yaml'
-          #     inventoriesAgentMachine: 'noInventory'
-          #     args: '-e "env=$(Environment.Name) admin_password=$(VM-password)" --verbose'
-          #     failOnStdErr: false
+          - task: Ansible@0
+            displayName: Deploy using ansible
+            timeoutInMinutes: 6
+            inputs:
+              ansibleInterface: 'agentMachine'
+              playbookPathOnAgentMachine: '$(System.DefaultWorkingDirectory)/deploy.yaml'
+              inventoriesAgentMachine: 'noInventory'
+              args: '-e "env=$(Environment.Name) admin_password=$(VM-password)" --verbose'
+              failOnStdErr: false
 
-          # - task: DeleteFiles@1
-          #   displayName: Delete .env file
-          #   inputs:
-          #     SourceFolder: '$(System.DefaultWorkingDirectory)'
-          #     Contents: '.env'
+          - task: DeleteFiles@1
+            displayName: Delete .env file
+            inputs:
+              SourceFolder: '$(System.DefaultWorkingDirectory)'
+              Contents: '.env'
               
 
 
