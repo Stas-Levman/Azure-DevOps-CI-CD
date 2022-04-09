@@ -30,9 +30,7 @@ resources:
       source: 'Weight tracker terraform'
       trigger:
         stages:
-        - Stage_infrastructure
-        - Prod_infrastructure
-      
+        - Stage_infrastructure      
 
 
 pool: 'self-hosted-stas'
