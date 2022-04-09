@@ -5,8 +5,8 @@ The pipline uses the weight tracker web application in this repository, an Ansib
 and Terraform for the infrastrcture in it's own repository.<br>
 The pipeline was ran on a self-hosted agent in a non cloud environment (on prem).
 
-1. Ansible repo - hlink
-2. Terraform repo - hlink
+1. <a href="https://github.com/sincros121/Weight-tracker-ansible-pipeline" title="">Terraform repo</a>
+2. <a href="https://github.com/sincros121/Weight-tracker-terraform-pipeline" title="">Ansible repo</a>
 
 ### Notes and assumptions
 
