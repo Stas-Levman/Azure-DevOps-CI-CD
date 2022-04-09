@@ -1,0 +1,24 @@
+
+
+steps:
+- script: |
+    echo "
+    PORT=8080
+    HOST=0.0.0.0
+
+    #postgres
+    PGHOST=weight-tracker-postgresql-db-$(Environment.Name).postgres.database.azure.com
+    PGUSERNAME=postgres
+    PGDATABASE=postgres
+    PGPASSWORD=$(weight-tracker-PSQL-db-password)
+    PGPORT=5432
+
+    HOST_URL=http://0.0.0.0:8080
+    COOKIE_ENCRYPT_PWD=$(cookie-encrypt-pwd)
+    NODE_ENV=development
+
+    # Okta configuration
+    OKTA_ORG_URL=https://dev-77800982.okta.com
+    OKTA_CLIENT_ID=$(OKTA-client-ID-prod)
+    OKTA_CLIENT_SECRET=$(okta-client-secret-prod)" | cat > .env
+  displayName: Create .env file
