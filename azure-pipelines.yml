@@ -93,54 +93,56 @@ stages:
           - checkout: Weight-tracker-ansible-pipeline
             displayName: Clone latest ansible repo
           
-          - task: UniversalPackages@0
-            displayName: Download latest artifacts
-            inputs:
-              command: 'download'
-              downloadDirectory: '$(System.DefaultWorkingDirectory)'
-              feedsToUse: 'internal'
-              vstsFeed: '4d568cd9-3258-4c66-8828-30f40b885ad4/fa3b70db-aad3-42de-a3b2-a6d319553542'
-              vstsFeedPackage: 'abb22cc3-69e3-448e-bcb0-4091eee52c00'
-              vstsPackageVersion: '*'
+          # - task: UniversalPackages@0
+          #   displayName: Download latest artifacts
+          #   inputs:
+          #     command: 'download'
+          #     downloadDirectory: '$(System.DefaultWorkingDirectory)'
+          #     feedsToUse: 'internal'
+          #     vstsFeed: '4d568cd9-3258-4c66-8828-30f40b885ad4/fa3b70db-aad3-42de-a3b2-a6d319553542'
+          #     vstsFeedPackage: 'abb22cc3-69e3-448e-bcb0-4091eee52c00'
+          #     vstsPackageVersion: '*'
 
-          - script: |
-              echo "
-              PORT=8080
-              HOST=0.0.0.0
+          - template: templates/env-creation-$(Environment.Name).yaml
 
-              #postgres
-              PGHOST=weight-tracker-postgresql-db-$(Environment.Name).postgres.database.azure.com
-              PGUSERNAME=postgres
-              PGDATABASE=postgres
-              PGPASSWORD=$(weight-tracker-PSQL-db-password)
-              PGPORT=5432
+          # - script: |
+          #     echo "
+          #     PORT=8080
+          #     HOST=0.0.0.0
 
-              HOST_URL=http://0.0.0.0:8080
-              COOKIE_ENCRYPT_PWD=$(cookie-encrypt-pwd)
-              NODE_ENV=development
+          #     #postgres
+          #     PGHOST=weight-tracker-postgresql-db-$(Environment.Name).postgres.database.azure.com
+          #     PGUSERNAME=postgres
+          #     PGDATABASE=postgres
+          #     PGPASSWORD=$(weight-tracker-PSQL-db-password)
+          #     PGPORT=5432
 
-              # Okta configuration
-              OKTA_ORG_URL=https://dev-77800982.okta.com
-              OKTA_CLIENT_ID=$(OKTA-client-ID-stage)
-              OKTA_CLIENT_SECRET=$(okta-client-secret-stage)" | cat > .env
-            displayName: Create .env file
+          #     HOST_URL=http://0.0.0.0:8080
+          #     COOKIE_ENCRYPT_PWD=$(cookie-encrypt-pwd)
+          #     NODE_ENV=development
+
+          #     # Okta configuration
+          #     OKTA_ORG_URL=https://dev-77800982.okta.com
+          #     OKTA_CLIENT_ID=$(OKTA-client-ID-stage)
+          #     OKTA_CLIENT_SECRET=$(okta-client-secret-stage)" | cat > .env
+          #   displayName: Create .env file
 
 
-          - task: Ansible@0
-            displayName: Deploy using ansible
-            timeoutInMinutes: 6
-            inputs:
-              ansibleInterface: 'agentMachine'
-              playbookPathOnAgentMachine: '$(System.DefaultWorkingDirectory)/deploy.yaml'
-              inventoriesAgentMachine: 'noInventory'
-              args: '-e "env=$(Environment.Name) admin_password=$(VM-password)" --verbose'
-              failOnStdErr: false
+          # - task: Ansible@0
+          #   displayName: Deploy using ansible
+          #   timeoutInMinutes: 6
+          #   inputs:
+          #     ansibleInterface: 'agentMachine'
+          #     playbookPathOnAgentMachine: '$(System.DefaultWorkingDirectory)/deploy.yaml'
+          #     inventoriesAgentMachine: 'noInventory'
+          #     args: '-e "env=$(Environment.Name) admin_password=$(VM-password)" --verbose'
+          #     failOnStdErr: false
 
-          - task: DeleteFiles@1
-            displayName: Delete .env file
-            inputs:
-              SourceFolder: '$(System.DefaultWorkingDirectory)'
-              Contents: '.env'
+          # - task: DeleteFiles@1
+          #   displayName: Delete .env file
+          #   inputs:
+          #     SourceFolder: '$(System.DefaultWorkingDirectory)'
+          #     Contents: '.env'
   
 
 
@@ -160,54 +162,57 @@ stages:
           - checkout: Weight-tracker-ansible-pipeline
             displayName: Clone latest ansible repo
           
-          - task: UniversalPackages@0
-            displayName: Download latest artifacts
-            inputs:
-              command: 'download'
-              downloadDirectory: '$(System.DefaultWorkingDirectory)'
-              feedsToUse: 'internal'
-              vstsFeed: '4d568cd9-3258-4c66-8828-30f40b885ad4/fa3b70db-aad3-42de-a3b2-a6d319553542'
-              vstsFeedPackage: 'abb22cc3-69e3-448e-bcb0-4091eee52c00'
-              vstsPackageVersion: '*'
+          # - task: UniversalPackages@0
+          #   displayName: Download latest artifacts
+          #   inputs:
+          #     command: 'download'
+          #     downloadDirectory: '$(System.DefaultWorkingDirectory)'
+          #     feedsToUse: 'internal'
+          #     vstsFeed: '4d568cd9-3258-4c66-8828-30f40b885ad4/fa3b70db-aad3-42de-a3b2-a6d319553542'
+          #     vstsFeedPackage: 'abb22cc3-69e3-448e-bcb0-4091eee52c00'
+          #     vstsPackageVersion: '*'
 
-          - script: |
-              echo "
-              PORT=8080
-              HOST=0.0.0.0
-
-              #postgres
-              PGHOST=weight-tracker-postgresql-db-$(Environment.Name).postgres.database.azure.com
-              PGUSERNAME=postgres
-              PGDATABASE=postgres
-              PGPASSWORD=$(weight-tracker-PSQL-db-password)
-              PGPORT=5432
-
-              HOST_URL=http://0.0.0.0:8080
-              COOKIE_ENCRYPT_PWD=$(cookie-encrypt-pwd)
-              NODE_ENV=development
-
-              # Okta configuration
-              OKTA_ORG_URL=https://dev-77800982.okta.com
-              OKTA_CLIENT_ID=$(OKTA-client-ID-prod)
-              OKTA_CLIENT_SECRET=$(okta-client-secret-prod)" | cat > .env
-            displayName: Crate .env file
+          - template: templates/env-creation-$(Environment.Name).yaml
 
 
-          - task: Ansible@0
-            displayName: Deploy using ansible
-            timeoutInMinutes: 6
-            inputs:
-              ansibleInterface: 'agentMachine'
-              playbookPathOnAgentMachine: '$(System.DefaultWorkingDirectory)/deploy.yaml'
-              inventoriesAgentMachine: 'noInventory'
-              args: '-e "env=$(Environment.Name) admin_password=$(VM-password)" --verbose'
-              failOnStdErr: false
+          # - script: |
+          #     echo "
+          #     PORT=8080
+          #     HOST=0.0.0.0
 
-          - task: DeleteFiles@1
-            displayName: Delete .env file
-            inputs:
-              SourceFolder: '$(System.DefaultWorkingDirectory)'
-              Contents: '.env'
+          #     #postgres
+          #     PGHOST=weight-tracker-postgresql-db-$(Environment.Name).postgres.database.azure.com
+          #     PGUSERNAME=postgres
+          #     PGDATABASE=postgres
+          #     PGPASSWORD=$(weight-tracker-PSQL-db-password)
+          #     PGPORT=5432
+
+          #     HOST_URL=http://0.0.0.0:8080
+          #     COOKIE_ENCRYPT_PWD=$(cookie-encrypt-pwd)
+          #     NODE_ENV=development
+
+          #     # Okta configuration
+          #     OKTA_ORG_URL=https://dev-77800982.okta.com
+          #     OKTA_CLIENT_ID=$(OKTA-client-ID-prod)
+          #     OKTA_CLIENT_SECRET=$(okta-client-secret-prod)" | cat > .env
+          #   displayName: Crate .env file
+
+
+          # - task: Ansible@0
+          #   displayName: Deploy using ansible
+          #   timeoutInMinutes: 6
+          #   inputs:
+          #     ansibleInterface: 'agentMachine'
+          #     playbookPathOnAgentMachine: '$(System.DefaultWorkingDirectory)/deploy.yaml'
+          #     inventoriesAgentMachine: 'noInventory'
+          #     args: '-e "env=$(Environment.Name) admin_password=$(VM-password)" --verbose'
+          #     failOnStdErr: false
+
+          # - task: DeleteFiles@1
+          #   displayName: Delete .env file
+          #   inputs:
+          #     SourceFolder: '$(System.DefaultWorkingDirectory)'
+          #     Contents: '.env'
               
 
 
