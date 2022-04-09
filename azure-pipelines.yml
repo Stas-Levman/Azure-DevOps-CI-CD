@@ -98,8 +98,8 @@ stages:
       runOnce:
         deploy:
           steps:
-          - checkout: Weight-tracker-ansible-pipeline
-            displayName: Clone latest ansible repo
+          # - checkout: Weight-tracker-ansible-pipeline
+          #   displayName: Clone latest ansible repo
 
           - task: AzureCLI@2
             displayName: Fetch public IP
