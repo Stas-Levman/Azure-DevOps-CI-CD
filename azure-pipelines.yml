@@ -20,6 +20,7 @@ resources:
       paths:
         exclude:
           - azure-pipelines.yml
+          - templates/*
 
 
 pool: 'self-hosted-stas'
@@ -121,7 +122,7 @@ stages:
               OKTA_ORG_URL=https://dev-77800982.okta.com
               OKTA_CLIENT_ID=$(OKTA-client-ID-stage)
               OKTA_CLIENT_SECRET=$(okta-client-secret-stage)" | cat > .env
-            displayName: Crate .env file
+            displayName: Create .env file
 
 
           - task: Ansible@0
