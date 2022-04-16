@@ -137,6 +137,7 @@ stages:
 
 - stage: Prod_deployment
   displayName: Prod
+  dependsOn: Stage_deployment
   
   variables: 
   - group: vault secrets - prod
